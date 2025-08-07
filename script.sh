@@ -13,7 +13,7 @@ handle() {
     hyprctl keyword bind , $BIND, exec, "hyprctl --batch 'dispatch sendkeystate , Shift_R, down, title:$TITLE ; dispatch sendkeystate , r, down, title:$TITLE ; dispatch sendkeystate , delete, down, title:$TITLE' ; sleep 0.01 ; hyprctl --batch 'dispatch sendkeystate , Shift_R, up, title:$TITLE ; dispatch sendkeystate , r, up, title:$TITLE ; dispatch sendkeystate , delete, up, title:$TITLE'"
     ACTIVE=true
   elif [ "$ACTIVE" = true ]; then
-    hyprctl keyword unbind , Space
+    hyprctl keyword unbind , $BIND
     ACTIVE=false
   fi
 }
