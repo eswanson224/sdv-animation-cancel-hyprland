@@ -1,3 +1,21 @@
-trap "hyprctl keyword unbind , Space" EXIT
-hyprctl keyword bind , Space, exec, 'hyprctl --batch "dispatch sendkeystate , Shift_R, down, title:Stardew Valley ; dispatch sendkeystate , r, down, title:Stardew Valley ; dispatch sendkeystate , delete, down, title:Stardew Valley" ; sleep 0.01 ; hyprctl --batch "dispatch sendkeystate , Shift_R, up, title:Stardew Valley ; dispatch sendkeystate , r, up, title:Stardew Valley ; dispatch sendkeystate , delete, up, title:Stardew Valley"'
-while true; do sleep 500; done
+#!/bin/sh
+
+BIND="Space"
+TITLE="Stardew Valley"
+ACTIVE=false
+
+trap "hyprctl keyword unbind , $BIND" EXIT
+
+handle() {
+  ACTIVE_WINDOW="$(echo $1 | sed -rn 's/activewindow>>(.+),.*/\1/p')"
+  if [ -z "$ACTIVE_WINDOW" ]; then return; fi
+  if [ "$ACTIVE_WINDOW" == "$TITLE" ]; then
+    hyprctl keyword bind , $BIND, exec, "hyprctl --batch 'dispatch sendkeystate , Shift_R, down, title:$TITLE ; dispatch sendkeystate , r, down, title:$TITLE ; dispatch sendkeystate , delete, down, title:$TITLE' ; sleep 0.01 ; hyprctl --batch 'dispatch sendkeystate , Shift_R, up, title:$TITLE ; dispatch sendkeystate , r, up, title:$TITLE ; dispatch sendkeystate , delete, up, title:$TITLE'"
+    ACTIVE=true
+  elif [ "$ACTIVE" = true ]; then
+    hyprctl keyword unbind , Space
+    ACTIVE=false
+  fi
+}
+
+nc -U $XDG_RUNTIME_DIR/hypr/$HYPRLAND_INSTANCE_SIGNATURE/.socket2.sock | while read -r line; do handle "$line"; done
